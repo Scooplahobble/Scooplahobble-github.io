@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title> Potato Man! </title>
+<script src="https://simplycodingcourses.com/files/simplyjs/simply.js"></script>
+<script>
+function start(){
+sjs.open();
+
+var background = new sjs.Image("Images/PotatoMenu.gif");
+background.setSize(500, 400);
+
+sjs.keyDown(SPACE_KEY, function(){
+
+window.location = "thepotatomanthegame.html";
+});
+}
+</script>
+</head>
+<body onload="start()">
+<h1> Potato Man! </h1>
+
+<div id="target" style="margin:auto;background:grey;"></div>
+</body>
+</html>

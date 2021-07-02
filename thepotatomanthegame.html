@@ -1,0 +1,191 @@
+<html>
+<head>
+<title> Potato Man </title>
+<script src="https://simplycodingcourses.com/files/simply.js"></script>
+<script>
+var level = [];
+function start(){
+sjs.open("target",500,400);
+
+var playM = new Audio('Music/song-maker.mid');
+var toggle = true;
+var musicOn = false;
+sjs.keyDown(SPACE_KEY, function(){
+if(toggle == true){
+if(musicOn == false){
+playM.play();
+musicOn = true;
+} else {
+playM.pause();
+musicOn = false;
+}
+toggle = false;
+setTimeout(function(){
+toggle = true;
+},1000);
+}
+}); 
+
+var background = new sjs.Image("Images/Background.png");
+background.setSize(1200, 600);
+
+sjs.loadImageArray(localStorage.getItem('level1'));
+
+var showBtn = new sjs.Button("Show", function(){
+var output = document.querySelector("#output");
+output.innerHTML = sjs.saveImageArray(level);
+});
+
+
+showBtn.offset(75, 0);
+
+var player = new sjs.Image("Images/potatomanidle.png");
+player.type = "player";
+player.setSize(85,93);
+player.setGravity(3);
+player.bottom();
+player.friction = .3;
+player.noBounds = true;
+
+sjs.scrollable(player,background);
+
+var r_images = ["Images/potatomanrlwalk.png","Images/potatomanrlwalk1.png","Images/potatomanrlwalk2.png","Images/potatomanrlwalk3.png","Images/potatomanrlwalk4.png","Images/potatomanrlwalk6.png","Images/potatomanrlwalk7.png","Images/potatomanrlwalk8.png","Images/potatomanrlwalk9.png","Images/potatomanrlwalk10.png"];
+
+var l_images = ["Images/potatomanlwalk.png","Images/potatomanlwalk1.png","Images/potatomanlwalk2.png","Images/potatomanlwalk3.png","Images/potatomanlwalk4.png","Images/potatomanlwalk6.png","Images/potatomanlwalk7.png","Images/potatomanlwalk8.png","Images/potatomanlwalk9.png","Images/potatomanlwalk10.png"];
+
+var r_facing = true;
+var r_track = 0;
+var l_track = 0;
+
+sjs.keyDown(RIGHT_KEY, function(){
+r_facing = true;
+r_track = r_track + 1;
+player.pushRight(2);
+player.setImage(r_images[r_track]);
+if(r_track == 7){
+r_track = 0;
+}
+if(r_track >= 8){
+player.setImage("Images/potatomanidle.png");
+}
+}); //end Right key
+
+sjs.keyDown(LEFT_KEY, function(){
+r_facing = false;
+l_track = l_track + 1;
+player.pushLeft(2);
+player.setImage(l_images[l_track]);
+if(l_track == 7){
+l_track = 0;
+}
+if(l_track >= 8){
+player.setImage("Images/potatomanidle.png");
+}
+}); //end Left key
+
+sjs.onHit("player","bottom_screen",function(x,y){
+sjs.stoppedBy(x,y);
+if(canJump == false){
+canJump = true;
+r_track = 0;
+l_track = 0;
+}
+});
+sjs.onHit("player",["right_screen","left_screen","top_screen"],function(x,y){
+sjs.stoppedBy(x,y);
+});
+
+//Jumping Code
+var canJump = true;
+sjs.keyDown(UP_KEY, function(){
+if(canJump == true){
+canJump = false;
+player.pushUp(55);
+if(r_facing == true){
+player.setImage("potatomanidle.png");
+r_track = 8;
+} else {
+player.setImage("potatomanidle.png");
+l_track = 8;
+}
+} //end canJump if statement
+}); //end keyDown function
+
+sjs.onHit("player","platform",function(x,y){
+sjs.stoppedBy(x,y);
+if(canJump == false && x.y < y.y-85){
+canJump = true;
+r_track = 0;
+l_track = 0;
+}
+});
+
+sjs.onHit("enemy","platform", function(x,y){
+if(x.isAboveOf(y) == true){
+sjs.stoppedBy(x,y);
+} else {
+sjs.bounceOff(x,y);
+}
+});
+
+sjs.onHit("player","enemy", function(x,y){
+x.destroy();
+window.location = "gameover.html";
+});
+
+sjs.onHit("enemy",["left_screen","right_screen"], function(x,y){
+sjs.bounceOff(x,y);
+});
+
+} //end start
+
+function platform(){
+var platform = new sjs.Image("Images/Grass.png");
+level.push(platform);
+platform.type = "platform";
+platform.setHeight(30);
+platform.center().offset(-sjs.gx,10);
+platform.onMouseDown(function(){
+platform.draggable();
+platform.follow(sjs.mouse);
+});
+}
+
+function enemy(){
+var enemy = new sjs.Image("Images/Enemy guy person thing thingy.png");
+level.push(enemy);
+enemy.type = "enemy";
+enemy.center().offset(-sjs.gx,10);
+enemy.friction = 0;
+enemy.noBounds = true;
+enemy.setHFlipImages("Images/Enemy guy person thing thingy.png","Images/Enemy guy person thing thingy.png");
+enemy.onMouseDown(function(){
+enemy.follow(sjs.mouse);
+enemy.removeGravity();
+enemy.stop();
+});
+enemy.onMouseUp(function(){
+enemy.unfollow(sjs.mouse);
+enemy.setGravity();
+enemy.pushHFacing();
+enemy.accel=.5;
+});
+}
+
+
+</script>
+</head>
+<body onload="start()">
+<h1> Potato Man </h1>
+<center>
+<input type="image" src="Images/Grass.png" onclick="platform()">
+<input type="image" src="Images/Enemy guy person thing thingy.png" onclick="enemy()">
+</center>
+<div id="target" style="margin:auto;background:grey;"></div>
+
+<br/>
+<div id="output" style="margin:0 50 0 50;"></div>
+<br/><br/>
+
+</body>
+</html>
